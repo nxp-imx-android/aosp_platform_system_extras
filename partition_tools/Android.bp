@@ -98,11 +98,23 @@ cc_binary {
     name: "lpmake",
     defaults: ["lp_defaults"],
     host_supported: true,
-    shared_libs: [
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+    static_libs: [
         "libbase",
         "liblog",
         "liblp",
+        "libcrypto_utils",
+        "libext4_utils",
+        "libsparse",
+        "libz",
+        "libcutils",
+        "libcrypto",
     ],
+    stl: "libc++_static",
     srcs: [
         "lpmake.cc",
     ],

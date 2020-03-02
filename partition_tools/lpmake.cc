@@ -17,7 +17,15 @@
 #include <getopt.h>
 #include <inttypes.h>
 #include <stdio.h>
+
+#if defined(_WIN32)
+#define EX_OK       0
+#define EX_USAGE 64
+#define EX_SOFTWARE 70
+#define EX_CANTCREAT    73
+#else
 #include <sysexits.h>
+#endif
 
 #include <memory>
 
