@@ -27,12 +27,26 @@
 #include <sysexits.h>
 #endif
 
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+
 #include <memory>
 
 #include <android-base/parseint.h>
 #include <android-base/strings.h>
 #include <liblp/builder.h>
 #include <liblp/liblp.h>
+#include <sparse/sparse.h>
+
+struct sparse_file {
+  unsigned int block_size;
+  int64_t len;
+  bool verbose;
+
+  struct backed_block_list* backed_block_list;
+  struct output_file* out;
+};
 
 using namespace android;
 using namespace android::fs_mgr;
@@ -326,6 +340,24 @@ int main(int argc, char* argv[]) {
         if (!android::base::ParseUint(parts[2].c_str(), &size)) {
             fprintf(stderr, "Partition must have a valid size.\n");
             return EX_USAGE;
+        }
+
+        if (size == 0 && images.find(name) != images.end()) {
+            std::string file = images[name];
+            int in = open(file.c_str(), O_RDONLY | O_BINARY);
+            if (in < 0) {
+                fprintf(stderr, "Invalid input image file.\n");
+                return EX_USAGE;
+            }
+            struct sparse_file* s;
+            s = sparse_file_import(in, true, false);
+            if (!s) {
+                fprintf(stderr, "Invalid input image file.\n");
+                return EX_USAGE;
+            }
+            size = s->len;
+            sparse_file_destroy(s);
+            close(in);
         }
 
         uint32_t attribute_flags = 0;

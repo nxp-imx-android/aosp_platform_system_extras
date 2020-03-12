@@ -113,6 +113,7 @@ cc_binary {
         "libz",
         "libcutils",
         "libcrypto",
+        "libsparse",
     ],
     stl: "libc++_static",
     srcs: [
